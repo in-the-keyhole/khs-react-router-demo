@@ -5,12 +5,13 @@
   "dependencies": {
     "bootstrap": "3",
     "classnames": "^2.2.5",
-    "formik": "^0.9.4",
+    "formik": "^0.10.5",
     "lodash": "^4.17.4",
-    "react": "^16.0.0",
-    "react-bootstrap": "^0.31.3",
-    "react-dom": "^16.0.0",
-    "react-scripts": "1.0.14",
+    "react": "^16.2.0",
+    "react-bootstrap": "^0.31.5",
+    "react-dom": "^16.2.0",
+    "react-router-dom": "^4.2.2",
+    "react-scripts": "1.0.17",
     "yup": "^0.23.0"
   },
   "scripts": {
@@ -22,8 +23,8 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "json-schema-faker": "^0.5.0-rc11",
-    "json-server": "^0.12.0",
-    "npm-run-all": "^4.1.1"
+    "json-schema-faker": "^0.4.6",
+    "json-server": "^0.12.1",
+    "npm-run-all": "^4.1.2"
   }
 }

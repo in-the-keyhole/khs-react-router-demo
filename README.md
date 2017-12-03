@@ -1,358 +1,218 @@
-This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
+This project was bootstrapped with
+[Create React App](https://github.com/facebookincubator/create-react-app).
 
-The code for this walkthrough is available [here](https://github.com/in-the-keyhole/khs-react-form-demo).
+The code for this walkthrough is available
+[here](https://github.com/in-the-keyhole/khs-react-router-demo).
 
 Instructions for use: `yarn install && yarn start`
 
-# The Joy of Forms with React and Formik
+> Note: I will be assuming some familiarity with React in general, including
+> lifecycle hooks and props/state. If you need a refresher, checkout this great
+> article [here](https://keyholesoftware.com/2017/06/29/my-reaction-to-react/)
+> and the offical [React docs](https://reactjs.org/).
 
-React is a JavaScript library for building user interfaces.  That's it.  It's a way to use javascript to define UI elements based on user-defined properties and internal state.
+# One Router to Rule Them All
 
-![React website header](/assets/react_title.PNG "That's all there is to it...")
+[Previously](https://keyholesoftware.com/2017/10/23/the-joy-of-forms-with-react-and-formik/),
+we looked at a very basic example of how one can benefit greatly by using
+community projects such as [Formik](https://github.com/jaredpalmer/formik) to
+avoid the tedium of certain solutions while embracing convention to create
+composable and scalable applications. We will be building on that foundation to
+explore the objectively great library that is
+[React Router](https://reacttraining.com/react-router/).
 
-It has a clean, functional style.  You can create simple components that compose very well into larger components, which you can then use to compose pages and entire applications.  This simple composability is one of the main reasons I enjoy working with it.  But, it is not an application framework.  It doesn't pretend to be.  This can be useful when all you want is some quick UI.  But, as the application grows, you will need to depend on outside libraries for things like state-management, routing, and forms.  In this article, I will be covering how an application can and should handle user input with Formik.
+React Router has been at the forefront of routing in the React ecosystem for as
+long as I can remember. If you're new to React, this is the way to go when you
+move beyond `return` based on `state` and start needing more options such as
+parameterized routing, nesting, and conditional rendering. If you have
+experience with React, this brings a powerful pattern to bear in that everything
+is a component. It takes the composablity of React and uses that to its benefit,
+handling any and all use-cases with relative ease.
 
-> Note: I will be assuming some familiarity with React in general, including lifecycle hooks and props/state.  If you need a refresher, checkout this great article [here](https://keyholesoftware.com/2017/06/29/my-reaction-to-react/) and the offical [React docs](https://reactjs.org/).
+## State Be Gone
 
-## A Simple Search
+> If you would like to follow along, please clone the
+> [Demo Application](https://github.com/in-the-keyhole/khs-react-form-demo).
+> This will be the baseline upon which all examples will be drawn.
 
-React applications can start simply - maybe you want to list that long list of todos you created the last time you did a coding tutorial, a list of movies from a demo application,  or maybe all the Steam games you bought on sale but haven't played yet.  In the latter case, you could end up with way too many to deal with, so you need to be able to search for them.
+To begin, we need to look at a simple way that many applications start out:
+returning UI components based on `props` and `state`. This is the foundation of
+React, and so happens to be all that was necessary to get our previous
+application up and running. Our list of games is fine for what it is, and
+searching works for us, but really, it might be nice if we could get a little
+more out of it - maybe a nice look at details for each game and a way to
+bookmark our favorites while we're at it?
 
-Here's a simple component that will let us find our long-lost games.
+Take a look at the `render` method in `App.js`. We're changing the form type
+based on `state`. As the comment notes:
+
+> `// this will do in a pinch, but should really be a router instead`
+
+Let's make that happen.
+
+### Routes
+
+The first thing we need to do is install `react-router-dom`. This is the package
+that gives us everything we need for Routes and Links in the browser. We can
+accomplish this using yarn.
+
+`yarn add react-router-dom`
+
+Next we need to import the `BrowserRouter` and `Route` dependencies. At the top
+of the file, add the following import statement.
+
+`import { BrowserRouter as Router, Route } from 'react-router-dom'`
+
+> Quick tip: The `as` keyword can be used to rename imports for convenience.
+
+Next, let's add the Routes we need to display our forms.
+
+Remove the switch statement in the render method and remove all references to
+the `form` and `formType` variables. Replace the `form` div after the header
+with our new `Router` setup (and to clean things up just a little bit, I've
+extracted the Header into a functional component). The components should now
+look like this.
 
 ```javascript
-import React, { Component } from 'react'
-
-export default class SimpleForm extends Component {
-  state = {
-    searchTerm: '',
-  }
-
-  handleSubmit = event => {
-    event.preventDefault() // prevent form post
-    this.props.onSearch(this.state.searchTerm)
-  }
-
-  handleSearch = event => {
-    const searchTerm = event.target.value
-    this.setState((prevState, props) => ({
-      searchTerm,
-    }))
-  }
-
-  render = () => (
-    <div>
-      <form onSubmit={this.handleSubmit}>
-        <input
-          type="text"
-          placeholder="Search games"
-          value={this.state.searchTerm}
-          onChange={this.handleSearch}
-        />
-        <input type="submit" value="Submit" />
-      </form>
+const Header = () => (
+  <header className="App-header">
+    <div className="logoContainer">
+      <img src={logo} className="App-logo" alt="react logo" />
+      <span className="heart">❤</span>
+      <img src={formik_logo} className="logo" alt="formik logo" />
     </div>
-  )
-}
-```
-
-Not too bad..  React ~~makes you~~ allows you to control the data flow explicitly in your application.  This is great in that the data-flow is unidirectional, which helps cut down on side-effects in large applications.  It does what we want in this case.  
-
-## A *Small* Addition
-
-The Steam Autumn Sale is coming up soon, and I want to make sure I can add some games to my collection.  Let's add a small form we can accomplish this.
-
-```javascript
-import React, { Component } from 'react'
-import TextInput from './TextInput' //re-usable TextInput!
-
-export default class AddGameForm extends Component {
-  state = {
-    title: '',
-    releaseYear: '',
-    genre: '',
-    price: '',
-  }
-
-  handleChange = event => {
-    const { name, value } = event.target
-    this.setState((prevState, props) => ({
-      [name]: value,
-    }))
-  }
-
-  handleSubmit = event => {
-    event.preventDefault() // prevent form post
-    // handle add here
-  }
-
-  render() {
-    const { title, releaseYear, genre, price } = this.state
-    return (
-      <div className="addGameForm">
-        <form onSubmit={this.handleSubmit}>
-          <TextInput
-            id="title"
-            name="title"
-            type="text"
-            label="Title "
-            placeholder="Game title"
-            value={title}
-            onChange={this.handleChange}
-          />
-          <TextInput
-            id="releaseYear"
-            name="releaseYear"
-            type="text"
-            label="Release year "
-            placeholder="1993"
-            value={releaseYear}
-            onChange={this.handleChange}
-          />
-          <TextInput
-            id="genre"
-            name="genre"
-            type="text"
-            label="Genre "
-            placeholder="Action/Arcade/Shooter"
-            value={genre}
-            onChange={this.handleChange}
-          />
-          <TextInput
-            id="price"
-            name="price"
-            type="text"
-            label="Price "
-            placeholder="13.37"
-            value={price}
-            onChange={this.handleChange}
-          />
-          <div>
-            <input className="btn" type="submit" value="Add Game" />
-          </div>
-        </form>
-      </div>
-    )
-  }
-}
-```
-
-Here we can see multiple custom `TextInput` controls in their natural habitat.  We can continue to grow the number of inputs if necessary, and we've added a nice ES6 feature to assign to the appropriate part of our `state`.  
-
-```javascript
-this.setState((prevState, props) => ({
-  const { name, value } = event.target // destructure properties
-  [name]: value, // ES6 computed property key
-}))
-```
-
-But wait... What about different types of inputs?  Checkboxes?  Dropdowns?  What about validating each of those form inputs?  What about only validating after the user has left a field to promote good UX?  What about asynchronous validation?  What about disabling inputs and changes while asynchronous submission is occuring?  How do we handle nested form values?  How about checking for changes and dirty fields?  
-
-As you can see, there are many concerns when developing a user experience for forms.  These are the types of things that separate a frustrating experience from a quality one.  We could definitely handle all these cases with some work, and over time, it would be great to abstract out many of the concerns above and develop a library that we could use to address these issues.  Luckily for us, [Formik](https://github.com/jaredpalmer/formik) already has.
-
-## Formik
-
-As a basic example, let's look at what Formik gives us.  You can use it as a [higher-order component](http://reactpatterns.com/#higher-order-component) or a [render callback](http://reactpatterns.com/#render-callback) (also applicable as a [child function](http://reactpatterns.com/#function-as-children)).  This allows for greater flexibility in the props and state as well as enhanced composability.  There is also no need to track the state of the form elements explicity.  You can allow your form to handle itself, which is one of the key elements of React and a component-based architecture.  
-
-Here is a basic version of the Add Game form using Formik (with a render callback).
-
-```javascript
-import React, { Component } from 'react'
-import TextInput from './TextInputFormik'
-import { Formik, Form, Field } from 'formik'
-import Yup from 'yup'
-import isEmpty from 'lodash/isEmpty'
-
-export default class AddGameForm extends Component {
-  render() {
-    return (
-      <div className="addGameForm">
-        <Formik
-          validationSchema={Yup.object().shape({
-            title: Yup.string()
-              .min(3, 'Title must be at least 3 characters long.')
-              .required('Title is required.'),
-          })}
-          initialValues={{
-            title: 'asdf',
-            releaseYear: '',
-            genre: '',
-            price: '12',
-          }}
-          onSubmit={(values, actions) => {
-            // this could also easily use props or other
-            // local state to alter the behavior if needed
-            // this.props.sendValuesToServer(values)
-
-            setTimeout(() => {
-              alert(JSON.stringify(values, null, 2))
-              actions.setSubmitting(false)
-            }, 1000)
-          }}
-          render={({ values, touched, errors, dirty, isSubmitting }) => (
-            <Form>
-              <Field
-                type="text"
-                name="title"
-                label="Title"
-                component={TextInput}
-              />
-              <Field
-                type="text"
-                name="releaseYear"
-                label="Release Year"
-                component={TextInput}
-              />
-              <Field
-                type="text"
-                name="genre"
-                label="Genre"
-                component={TextInput}
-              />
-              <Field
-                type="text"
-                name="price"
-                label="Price"
-                component={TextInput}
-              />
-              <button
-                type="submit"
-                className="btn btn-default"
-                disabled={isSubmitting || !isEmpty(errors) || !dirty}
-              >
-                Add Game
-              </button>
-            </Form>
-          )}
-        />
-      </div>
-    )
-  }
-}
-```
-
-The Formik component gives us access to numerous props that we can use to get the behavior we want.  Any of these can be extracted to their own contants or adjusted based on internal state or props passed down to it.  Let's break down some key features that Formik provides.
-
-#### Validation
-Formik leans on [Yup](https://github.com/jquense/yup) for validation.  This provides a simple, yet powerful, way to validate an object schema for your form controls.
-
-```javascript
-validationSchema={Yup.object().shape({
-  title: Yup.string()
-    .min(3, 'Title must be at least 3 characters long.')
-    .required('Title is required.'),
-})}
-```
-
-The `validationSchema` prop takes a `Yup` schema or a function that returns one.  There are many times of validators, such as for objects, strings, numbers, dates, etc.  You can also create your own.  The validators can be chained to allow precise contraints for acceptable values.
-
-You also do not need to use Yup - you can write your own validation functions with plain javascript by providing a `validation` prop instead of a validationSchema.
-
-```javascript
-validate={values => {
-  let errors = {}
-  if (!values.price) {
-    errors.price = 'Required'
-  } else if (values.price > 60) {
-    errors.price = 'Costs too much, wait for the sale!'
-  }
-  return errors
-}}
-```
-
-The `errors` object simply has a matching key for each value in the form values object.
-
-#### Form Layout
-
-Formik provides `Form` and `Field` components as well, which are merely helping components to take care of basic `<form>` and `<input>` tags.  These follow established conventions which are outlined more in the [documentation](https://github.com/jaredpalmer/formik#field-).  In these cases we're passing a custom `TextInput` component that lets us control how the labels, inputs, and error messages are laid out.  Below is a basic example.
-
-```javascript
-import React from 'react'
-import classnames from 'classnames'
-
-const InputFeedback = ({ children }) => (
-  <span className="text-danger">{children}</span>
+    <h1 className="App-title">The Joy of Forms with React and Formik</h1>
+    <div>
+      <span
+        className="form-link"
+        onClick={() => this.handleChangeForm('simple')}
+      >
+        Simple
+      </span>
+      <span
+        className="form-link"
+        onClick={() => this.handleChangeForm('tedious')}
+      >
+        Tedious
+      </span>
+      <span
+        className="form-link"
+        onClick={() => this.handleChangeForm('formik')}
+      >
+        Formik
+      </span>
+    </div>
+  </header>
 )
 
-const Label = ({ error, children, ...props }) => {
-  return <label {...props}>{children}</label>
+class App extends Component {
+  render() {
+    return (
+      <div className="App">
+        <Router>
+          <div>
+            <Header />
+            <Route
+              path="/"
+              render={() => <h3>Choose Simple, Tedious, or Formik</h3>}
+            />
+            <Route path="/simple" component={SimpleForm} />
+            <Route path="/tedious" component={TediousForm} />
+            <Route path="/formik" component={FormikForm} />
+          </div>
+        </Router>
+      </div>
+    )
+  }
 }
-
-const TextInput = ({
-  field: { name, ...field }, // { name, value, onChange, onBlur }
-  form: { touched, errors }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
-  className,
-  label,
-  ...props
-}) => {
-  const error = errors[name]
-  const touch = touched[name]
-  const classes = classnames(
-    'form-group',
-    {
-      'animated shake error': !!error,
-    },
-    className
-  )
-  return (
-    <div className={classes}>
-      <Label htmlFor={name} error={error}>
-        {label}
-      </Label>
-      <input
-        id={name}
-        className="form-control"
-        type="text"
-        {...field}
-        {...props}
-      />
-      {touch && error && <InputFeedback>{error}</InputFeedback>}
-    </div>
-  )
-}
-
-export default TextInput
 ```
 
-We create a `div` that holds our label, input, and error output.  Here we're using stateless functional components for our elements.  This keeps our templates simple without the need for hooking into the React lifecycle or keeping track of internal state.  This is a great pattern to use because it means that they are truly just javascript functions that transform data into markup.  With a little work, this would make a great addition to anyone's component library!
+![Router](/assets/first_router.PNG)
 
-More great examples can be found on [codesandbox](https://codesandbox.io/s/q8yRqQMp).
+Let's breakdown a few of these elements.
 
-#### Form State and Submission
+The `Router` block is what allows react-router to match each of the `Route`
+objects `path` props and display the corresponding `component`. These can be any
+React component. You can also pass a function to the `children` or `render`
+props that returns a component, as is done for the root ("/") `Route`. Try going
+to [http://localhost:3000/simple](http://localhost:3000/simple) to see the
+router in action!
 
-If you have developed line-of-business applications like I have, you know that form state and submission handling is sometimes annoying and prone to repitition.  Formik lets us handle this by creating a convention that lets us easily handle submitting the form, setting state, and tracking whether the form is dirty.  
+![Router](/assets/not_exactly.PNG "Not exactly what we're lookikng for...")
 
-```javascript
-onSubmit={(values, actions) => {
-  // this could also easily use props or other
-  // local state to alter the behavior if needed
-  // this.props.sendValuesToServer(values)
+There's our gamelist rendered with the `Route` since the path matches. Huzzah!
+But, there's one thing amiss here, and that is the "/" route and the "/simple"
+routes are both rendering. The matching expression still works for both of them,
+so it's rendering them in the order it discovers them. We would rather it be one
+or the other, so we can add the `exact` prop to the root `Route` to fix the
+behavior.
 
-  setTimeout(() => {
-    alert(JSON.stringify(values, null, 2))
-    actions.setSubmitting(false)
-  }, 1000)
-}}
+```
+<Route
+  exact
+  path="/"
+  render={() => <h3>Choose Simple, Tedious, or Formik</h3>}
+/>
 ```
 
-Here we're just faking a server delay and then `alert`ing the values.  We also have `actions` that formik provides to make our UX dynamic and more pleasant for the user.  We can disable the submit button while the form is submitting, dirty, or otherwise not in a state that we want, as shown below.
+![Router](/assets/better.PNG "Much better.")
 
-```html
-<button
-  type="submit"
-  className="btn btn-default"
-  disabled={isSubmitting || !isEmpty(errors) || !dirty}
->
-  Add Game
-</button>
+That's more like it!
+
+### Links
+
+Now, if you click around you'll notice that the navigation we had setup
+previously no longer works and the app will yell at you since we have gotten rid
+of the `handleChangeForm` functions. Not to worry, `Link` is here for you.
+
+First, we will import the `Link` from `react-router-dom`.
+
+`import { BrowserRouter as Router, Route, Link } from 'react-router-dom'`
+
+Next, we will replace the `span`s in the header with `Link` components, keeping
+the styling we had previously.
+
+```
+<Link to="/simple" className="form-link">
+  Simple
+</Link>
+<Link to="/tedious" className="form-link">
+  Tedious
+</Link>
+<Link to="/formik" className="form-link">
+  Formik
+</Link>
 ```
 
-No more explicit state handling for disabling inputs, and no more saving copies of objects to check on dirty state!  Huzzah!
+That's it! Click your beautiful links and see the router do its thing.
 
-## Conclusion
+For one last flourish, let's give a little color to the active link so we know
+which form we've selected. This can be done with the `NavLink` component from
+`react-router-dom`. Replace the `Link` instances with `NavLink`. `NavLink` will
+allow us to apply styles when the route matches the `Link`. There are two ways
+we can accomplish this - either with `activeStyle` or `activeClassName` props.
+For this simple example, we will supply a style object that will be applied for
+each of our links.
 
-React has come a long way - it has a thriving community of developers and many great libraries to choose from.  I think Formik is one of them.  It takes a lot of the pain and tedium out of developing forms by giving you concise conventions and solid patterns to follow.  
+Create a `const` above the `Header` declaration to hold our active style color:
 
-If you haven't used React or Formik in the past, I encourage you to give it a try.  It has been a joy to work with so far, with a development cycle that is top-notch and a true lack of ceremony around creating reusable, composable components.  This dynamic nature (after all, it is *just* Javascript) grants great power and flexibility.  
+`const activeStyle = { color: '#61dafb' }`
 
-If you want to learn more about React or Formik, check out the source code for these samples [here](https://github.com/in-the-keyhole/khs-react-form-demo), our "Now Playing" [reference application](https://github.com/in-the-keyhole/khs-react-course), or contact Keyhole for access to our React training course!
+Next, we can supply that to the `activeStyle` prop on our `NavLink` components,
+as shown here:
+
+```
+<NavLink to="/simple" className="form-link" activeStyle={activeStyle}>
+  Simple
+</NavLink>
+<NavLink to="/tedious" className="form-link" activeStyle={activeStyle}>
+  Tedious
+</NavLink>
+<NavLink to="/formik" className="form-link" activeStyle={activeStyle}>
+  Formik
+</NavLink>
+```
+
+![Router](/assets/active.PNG "Active link highlighted.")
+
+Our active link is highlighted with our nice blue color.
