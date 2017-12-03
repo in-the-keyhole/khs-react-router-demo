@@ -3,9 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "body-parser": "^1.18.2",
     "bootstrap": "3",
     "classnames": "^2.2.5",
+    "cors": "^2.8.4",
+    "express": "^4.16.2",
     "formik": "^0.10.5",
+    "igdb-api-node": "^3.1.0",
     "lodash": "^4.17.4",
     "react": "^16.2.0",
     "react-bootstrap": "^0.31.5",
@@ -15,8 +19,9 @@
     "yup": "^0.23.0"
   },
   "scripts": {
-    "start": "run-p db startreact",
+    "start": "run-p db startreact api",
     "db": "json-server --watch src/db.json --port 1337",
+    "api": "node src/api.js",
     "startreact": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",

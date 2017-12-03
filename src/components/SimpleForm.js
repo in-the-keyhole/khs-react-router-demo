@@ -1,12 +1,14 @@
 import React, { Component } from 'react'
 import GameList from './GameList'
+import { Route } from 'react-router-dom'
+import GameDetail from './GameDetail'
 
 export default class SimpleForm extends Component {
   // static class property - this lets us avoid a constructor
   // altogether since we are not accepting any props
   state = {
     searchTerm: '',
-    selectedSearchTerm: '',
+    selectedSearchTerm: ''
   }
 
   /*
@@ -17,7 +19,7 @@ export default class SimpleForm extends Component {
   handleSubmit = event => {
     event.preventDefault() // prevent form post
     this.setState((prevState, props) => ({
-      selectedSearchTerm: this.state.searchTerm,
+      selectedSearchTerm: this.state.searchTerm
     }))
   }
 
@@ -30,23 +32,33 @@ export default class SimpleForm extends Component {
       https://medium.freecodecamp.org/functional-setstate-is-the-future-of-react-374f30401b6b
     */
     this.setState((prevState, props) => ({
-      searchTerm,
+      searchTerm
     }))
   }
 
   render = () => (
     <div>
-      <form onSubmit={this.handleSubmit}>
-        <input
-          type="text"
-          placeholder="Search games"
-          value={this.state.searchTerm}
-          onChange={this.handleSearch}
-        />
-        <input type="submit" value="Submit" />
-      </form>
-      <br />
-      <GameList searchTerm={this.state.selectedSearchTerm} />
+      <div className="row">
+        <div className="col-md-4">
+          <form onSubmit={this.handleSubmit}>
+            <input
+              type="text"
+              placeholder="Search games"
+              value={this.state.searchTerm}
+              onChange={this.handleSearch}
+            />
+            <input type="submit" value="Submit" />
+          </form>
+          <br />
+          <GameList searchTerm={this.state.selectedSearchTerm} />
+        </div>
+        <div className="col-md-8">
+          <Route
+            path="/simple/games/:name"
+            render={({ match }) => <GameDetail match={match} />}
+          />
+        </div>
+      </div>
     </div>
   )
 }

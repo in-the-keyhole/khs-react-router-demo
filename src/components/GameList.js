@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
+import { Link } from 'react-router-dom'
 
 export default class GameList extends Component {
   state = {
-    games: [],
+    games: []
   }
 
   componentDidMount = async () => {
@@ -24,10 +25,12 @@ export default class GameList extends Component {
       name.toUpperCase().includes(searchTerm.toUpperCase())
     )
 
-    return filtered
-      .sort()
-      .map((game, index) => (
-        <div key={index}>{`${index + 1}: ${game.name}`}</div>
-      ))
+    return filtered.sort().map((game, index) => (
+      <div key={index}>
+        <Link to={`/simple/games/${game.name}`}>{`${index + 1}: ${
+          game.name
+        }`}</Link>
+      </div>
+    ))
   }
 }

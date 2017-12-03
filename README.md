@@ -29,7 +29,7 @@ experience with React, this brings a powerful pattern to bear in that everything
 is a component. It takes the composablity of React and uses that to its benefit,
 handling any and all use-cases with relative ease.
 
-## State Be Gone
+## State Be Gone!
 
 > If you would like to follow along, please clone the
 > [Demo Application](https://github.com/in-the-keyhole/khs-react-form-demo).
@@ -216,3 +216,5 @@ as shown here:
 ![Router](/assets/active.PNG "Active link highlighted.")
 
 Our active link is highlighted with our nice blue color.
+
+## Attention to Detail
