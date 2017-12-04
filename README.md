@@ -34,7 +34,7 @@ handling any and all use-cases with relative ease.
 ## State Be Gone!
 
 > If you would like to follow along, please clone the
-> [Demo Application](https://github.com/in-the-keyhole/khs-react-form-demo).
+> [Forms Demo Application](https://github.com/in-the-keyhole/khs-react-form-demo).
 > This will be the baseline upon which all examples will be drawn.
 
 To begin, we need to look at a simple way that many applications start out:
