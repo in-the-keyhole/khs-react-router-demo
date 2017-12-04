@@ -1,0 +1,8 @@
+.fade-exit {
+  transition: opacity 0.2s linear;
+  opacity: 1;
+}
+
+.fade-exit-active {
+  opacity: 0;
+}

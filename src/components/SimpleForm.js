@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import GameList from './GameList'
 import { Route } from 'react-router-dom'
 import GameDetail from './GameDetail'
+import { CSSTransition, TransitionGroup } from 'react-transition-group'
+import './transitions.css'
 
 export default class SimpleForm extends Component {
   // static class property - this lets us avoid a constructor
@@ -36,29 +38,43 @@ export default class SimpleForm extends Component {
     }))
   }
 
-  render = () => (
-    <div>
-      <div className="row">
-        <div className="col-md-4">
-          <form onSubmit={this.handleSubmit}>
-            <input
-              type="text"
-              placeholder="Search games"
-              value={this.state.searchTerm}
-              onChange={this.handleSearch}
-            />
-            <input type="submit" value="Submit" />
-          </form>
-          <br />
-          <GameList searchTerm={this.state.selectedSearchTerm} />
-        </div>
-        <div className="col-md-8">
-          <Route
-            path="/simple/games/:name"
-            render={({ match }) => <GameDetail match={match} />}
-          />
+  render = () => {
+    const currentKey = this.props.location.pathname.split('/')[3] || '/'
+    console.log(this.props.location.pathname)
+    const timeout = { exit: 200 }
+
+    return (
+      <div className="container">
+        <div className="row">
+          <div className="col-md-4">
+            <form onSubmit={this.handleSubmit}>
+              <input
+                type="text"
+                placeholder="Search games"
+                value={this.state.searchTerm}
+                onChange={this.handleSearch}
+              />
+              <input type="submit" value="Submit" />
+            </form>
+            <br />
+            <GameList searchTerm={this.state.selectedSearchTerm} />
+          </div>
+          <div className="col-md-8">
+            <TransitionGroup>
+              <CSSTransition
+                key={currentKey}
+                timeout={timeout}
+                classNames="fade"
+              >
+                <Route
+                  path="/simple/games/:name"
+                  render={({ match }) => <GameDetail match={match} />}
+                />
+              </CSSTransition>
+            </TransitionGroup>
+          </div>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
 }

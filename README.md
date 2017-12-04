@@ -13,6 +13,8 @@ Instructions for use: `yarn install && yarn start`
 
 # One Router to Rule Them All
 
+## An Introduction to React Router
+
 [Previously](https://keyholesoftware.com/2017/10/23/the-joy-of-forms-with-react-and-formik/),
 we looked at a very basic example of how one can benefit greatly by using
 community projects such as [Formik](https://github.com/jaredpalmer/formik) to
@@ -218,3 +220,185 @@ as shown here:
 Our active link is highlighted with our nice blue color.
 
 ## Attention to Detail
+
+Now let's see about grabbing some details for our games. We're going to use the
+great [Internet Games Database Api](https://api.igdb.com/) to grab info for our
+games. Take a look at [api.js](todo link) for the implementation; I won't go
+into it here (it's simple, I promise!). Our Simple route is all we'll be dealing
+with; it will follow a common Master-detail view pattern, with the searchable
+list of games on the left, and a new section on the list for our details.
+
+First, we modify the `SimpleForm` to hold our view, along with a route to hold
+our `GameDetail` component. If you have ever done any other sort of server or
+client-side routing, this will probably look familiar. If not, don't worry.
+Let's break it down.
+
+```
+...
+<div>
+  <div className="row">
+    <div className="col-md-4">
+      <form onSubmit={this.handleSubmit}>
+        <input
+          type="text"
+          placeholder="Search games"
+          value={this.state.searchTerm}
+          onChange={this.handleSearch}
+        />
+        <input type="submit" value="Submit" />
+      </form>
+      <br />
+      <GameList searchTerm={this.state.selectedSearchTerm} />
+    </div>
+    <div className="col-md-8">
+      <Route
+        path="/simple/games/:name"
+        render={({ match }) => <GameDetail match={match} />}
+      />
+    </div>
+  </div>
+</div>
+...
+```
+
+The only major change here is the `Route`. Like before, it has a `path` and a
+`render` prop that we will use to match the URL we want to use and the component
+we want to render. We're destructuring the `match` prop from the other props
+that React Router gives us and passing it down for use in our detail component.
+In our case, what we're after is the `:name` parameter from the route's `path`.
+This allows us to have any games referenced using this route within a route
+(sub-route) so we can provide a nice experience for the user. This name is
+provided to use by the change we need to make to the links in the `GameList`
+component. At the bottom of our `GameList`, we change the `div` to a `Link`
+component, the same as we did before (don't forget to import it from
+`react-router-dom`).
+
+```
+...
+<div key={index}>
+  <Link to={`/simple/games/${game.name}`}>{game.name}</Link>
+</div>
+...
+```
+
+Note that the `Link to` prop value matches the route - so we put a game's name
+at the end of the route, and it matches the Route path we have provided in the
+`SimpleForm` component.
+
+All that is left is to create the `GameDetail` component. You can find the code
+on [Github](TODO link to GameDetail) - there's too much to post here.
+Alternatively, you can take a look at the [IGDB](https://api.igdb.com/) and
+implement your own detail page!
+
+## Subtle Transitions
+
+For our final act, we're going to add some slight transitions to make it look a
+little more magical - and this is the real world, so let's be honest: we're
+going to fudge some loading times with this as well. ;)
+
+First, let's install a library that will help us get this done.
+
+`yarn add react-transition-group`
+
+Next, import the dependencies we'll use:
+
+`import { CSSTransition, TransitionGroup } from 'react-transition-group'`
+
+Before we change our components, we need to add a css file that we'll need
+later.
+
+Add a file named `transitions.css` to `/src/components` and copy the following
+classes into it:
+
+```css
+.fade-exit {
+  transition: opacity 0.2s linear;
+  opacity: 1;
+}
+
+.fade-exit-active {
+  opacity: 0;
+}
+```
+
+Import this at the top of `SimpleForm.js`.
+
+`import './transitions.css'`
+
+Next, we're going to modify our render method to look like this:
+
+```
+render = () => {
+  const currentKey = this.props.location.pathname.split('/')[3] || '/'
+  const timeout = { exit: 200 }
+
+  return (
+    <div className="container">
+      <div className="row">
+        <div className="col-md-4">
+          <form onSubmit={this.handleSubmit}>
+            <input
+              type="text"
+              placeholder="Search games"
+              value={this.state.searchTerm}
+              onChange={this.handleSearch}
+            />
+            <input type="submit" value="Submit" />
+          </form>
+          <br />
+          <GameList searchTerm={this.state.selectedSearchTerm} />
+        </div>
+        <div className="col-md-8">
+          <TransitionGroup>
+            <CSSTransition
+              key={currentKey}
+              timeout={timeout}
+              classNames="fade"
+            >
+              <Route
+                path="/simple/games/:name"
+                render={({ match }) => <GameDetail match={match} />}
+              />
+            </CSSTransition>
+          </TransitionGroup>
+        </div>
+      </div>
+    </div>
+  )
+}
+```
+
+The `TransitionGroup` is what allows us to list one or more transitions and have
+them be managed for us. This, in turn, lets us put a `CSSTransition` component
+inside and have it manage the mounting and unmounting (and related css styles)
+transition animations. The `key` is key, here.
+
+`const currentKey = this.props.location.pathname.split('/')[3] || '/'`
+
+This tells the `CSSTransition` when to transition. At this point in our app, if
+you were to console log the pathname, you might say something like this:
+`/simple/games/Factorio`. The game name in this route will change, and that key
+change tells the `CSSTransition` to do its thing. The classNames prop is related
+to the css we added earlier. By convention, this tells the transition to prefix
+the event names with `fade`, so we end up with the css classes in our
+`transitions.css` file applying the transition animation for fading out as we
+change routes.
+
+## That's it!
+
+That's all I have for you, but believe me, there's plenty more to see
+(transition prevention, responsive routes, recursive paths, server rendering,
+etc). The best part is, it's components all the way down! Make sure and check
+out the [docs](https://reacttraining.com/react-router/) for examples of
+everything mentioned here.
+
+Hats off to [Michael Jackson](https://twitter.com/mjackson) and
+[Ryan Florence](https://twitter.com/ryanflorence) for this great library. Follow
+them on twitter!
+
+I hope this example helped shed some light on the basics of React Router. If you
+have any feedback, please feel free to leave it in the comments below. If you
+need any additional assitance or training with React, Keyhole Software is happy
+to help -
+[hit us up!](https://keyholesoftware.com/contact/contact-and-locations/)! Thanks
+for reading.
