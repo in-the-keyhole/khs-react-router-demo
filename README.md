@@ -290,6 +290,8 @@ on [Github](TODO link to GameDetail) - there's too much to post here.
 Alternatively, you can take a look at the [IGDB](https://api.igdb.com/) and
 implement your own detail page!
 
+![Router](/assets/details.PNG)
+
 ## Subtle Transitions
 
 For our final act, we're going to add some slight transitions to make it look a
