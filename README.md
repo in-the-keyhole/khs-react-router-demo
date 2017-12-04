@@ -129,8 +129,6 @@ class App extends Component {
 }
 ```
 
-![Router](/assets/first_router.PNG)
-
 Let's breakdown a few of these elements.
 
 The `Router` block is what allows react-router to match each of the `Route`
