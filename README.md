@@ -45,7 +45,32 @@ searching works for us, but really, it might be nice if we could get a little
 more out of it - maybe a nice look at details for each game and a way to
 bookmark our favorites while we're at it?
 
-Take a look at the `render` method in `App.js`. We're changing the form type
+Take a look at the `render` method in `App.js`. 
+
+```
+...
+render() {
+    const { formType } = this.state
+
+    // this will do in a pinch, but should really be a router instead
+    let form = null
+    switch (formType) {
+      case 'simple':
+        form = <SimpleForm />
+        break
+      case 'tedious':
+        form = <TediousForm />
+        break
+      case 'formik':
+        form = <FormikForm />
+        break
+
+      default:
+    }
+...
+```
+
+We're changing the form type
 based on `state`. As the comment notes:
 
 > `// this will do in a pinch, but should really be a router instead`
