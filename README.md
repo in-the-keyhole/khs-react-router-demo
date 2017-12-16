@@ -25,7 +25,7 @@ explore the objectively great library that is
 
 React Router has been at the forefront of routing in the React ecosystem for as
 long as I can remember. If you're new to React, this is the way to go when you
-move beyond `return` based on `state` and start needing more options such as
+move `state` and start needing more options such as
 parameterized routing, nesting, and conditional rendering. If you have
 experience with React, this brings a powerful pattern to bear in that everything
 is a component. It takes the composablity of React and uses that to its benefit,
@@ -70,8 +70,7 @@ render() {
 ...
 ```
 
-We're changing the form type
-based on `state`. As the comment notes:
+We're changing the form type based on `state`. As the comment notes:
 
 > `// this will do in a pinch, but should really be a router instead`
 
@@ -246,7 +245,7 @@ Our active link is highlighted with our nice blue color.
 
 Now let's see about grabbing some details for our games. We're going to use the
 great [Internet Games Database Api](https://api.igdb.com/) to grab info for our
-games. Take a look at [api.js](todo link) for the implementation; I won't go
+games. Take a look at [api.js](https://github.com/in-the-keyhole/khs-react-router-demo/blob/master/src/api.js) for the implementation; I won't go
 into it here (it's simple, I promise!). Our Simple route is all we'll be dealing
 with; it will follow a common Master-detail view pattern, with the searchable
 list of games on the left, and a new section on the list for our details.
@@ -294,7 +293,7 @@ This allows us to have any games referenced using this route within a route
 provided to use by the change we need to make to the links in the `GameList`
 component. At the bottom of our `GameList`, we change the `div` to a `Link`
 component, the same as we did before (don't forget to import it from
-`react-router-dom`).
+`react-router-dom` as we did for the `App` component).
 
 ```
 ...
@@ -309,7 +308,7 @@ at the end of the route, and it matches the Route path we have provided in the
 `SimpleForm` component.
 
 All that is left is to create the `GameDetail` component. You can find the code
-on [Github](TODO link to GameDetail) - there's too much to post here.
+on [Github](https://github.com/in-the-keyhole/khs-react-router-demo/blob/master/src/components/GameDetail.js) - it's a little longer so I won't post it all here.
 Alternatively, you can take a look at the [IGDB](https://api.igdb.com/) and
 implement your own detail page!
 
@@ -319,7 +318,7 @@ implement your own detail page!
 
 For our final act, we're going to add some slight transitions to make it look a
 little more magical - and this is the real world, so let's be honest: we're
-going to fudge some loading times with this as well. ;)
+going to fudge some loading times with this as well so the perceived experience is better. ;)
 
 First, let's install a library that will help us get this done.
 
