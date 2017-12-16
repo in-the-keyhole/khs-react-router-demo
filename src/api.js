@@ -43,4 +43,4 @@ app.get('/games', cors(corsOptions), (req, res) => {
     })
 })
 
-app.listen(1338, () => console.log('Example app listening on port 1338!'))
+app.listen(1338, () => console.log('Games detail endpoint listening on port 1338!'))
